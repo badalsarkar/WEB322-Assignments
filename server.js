@@ -17,6 +17,7 @@ const port=process.env.PORT||8080;
 const multer=require('multer');
 const fs=require('fs');
 const bodyParser=require('body-parser');
+const exphbs=require('express-handlebars');
 let app=express();
 
 //parser the request body
@@ -37,18 +38,26 @@ const storage=multer.diskStorage({
 
 let upload=multer({storage:storage});
 
+//handlebar setup
+app.engine('.hbs', exphbs({
+    extname:'.hbs',
+    defaultLayout:'main'
+}));
+
+app.set('view engine', '.hbs');
 
 
 //routing
 //home route
 app.get('/',(req, res)=>{
-    res.sendFile(path.join(__dirname, '/views/home.html'));
+    //res.sendFile(path.join(__dirname, '/views/home.html'));
+    res.render('home');
 });
 
 
 //about route
 app.get('/about', (req,res)=>{
-    res.sendFile(path.join(__dirname, '/views/about.html'));
+    res.render('about');
 });
 
 
@@ -107,7 +116,8 @@ app.get('/employees', (req,res)=>{
 
 //employee/add route
 app.get('/employees/add', (req,res)=>{
-    res.sendFile(path.join(__dirname, '/views/addEmployee.html'));
+    //res.sendFile(path.join(__dirname, '/views/addEmployee.html'));
+    res.render('addEmployee');
 });
 
 
@@ -159,7 +169,7 @@ app.get('/departments', (req,res)=>{
 
 //images/add route
 app.get('/images/add', (req,res)=>{
-    res.sendFile(path.join(__dirname, '/views/addImage.html'));
+    res.render('addImage');
 });
 
 
