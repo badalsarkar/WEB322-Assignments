@@ -41,10 +41,34 @@ let upload=multer({storage:storage});
 //handlebar setup
 app.engine('.hbs', exphbs({
     extname:'.hbs',
-    defaultLayout:'main'
+    defaultLayout:'main',
+    helpers:{
+        navLink: function(url, options){
+             return '<li' +
+                 ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+                 '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function (lvalue, rvalue, options) {
+             if (arguments.length < 3)
+                 throw new Error("Handlebars Helper equal needs 2 parameters");
+             if (lvalue != rvalue) {
+                 return options.inverse(this);
+             }
+            else {
+                return options.fn(this);
+            }
+        }
+    } //end of helpers
 }));
 
 app.set('view engine', '.hbs');
+
+//for fixing the active item
+app.use(function(req,res,next){
+     let route = req.baseUrl + req.path;
+     app.locals.activeRoute = (route == "/") ? "/" : route.replace(/\/$/, "");
+     next();
+});
 
 
 //routing
@@ -135,17 +159,6 @@ app.get('/employee/:value',(req,res)=>{
 });
 
 
-
-//managers route
-app.get('/managers', (req, res)=>{
-    dataService.getManagers().
-        then(managers=>{
-            res.json(managers);
-        }).
-        catch(err=>{
-            res.json({message: err});
-        });
-});
 
 
 
