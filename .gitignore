@@ -1,0 +1,6 @@
+#ignore the following files
+*.swp
+*.vim
+
+#ignore the following folders
+node_modules
