@@ -167,10 +167,10 @@ app.get('/employee/:value',(req,res)=>{
 app.get('/departments', (req,res)=>{
     dataService.getDepartments().
         then(departments=>{
-            res.json(departments);
+            res.render('departments',{departments:departments});
         }).
         catch(err=>{
-            res.json({message: err});
+            res.render('departments',{message: err});
         });
 });
 
