@@ -1,0 +1,41 @@
+<div class="row">
+    <div class="col-md-12">
+        <h2>Employees</h2>
+        <hr />
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Employee Num</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Manager ID</th>
+                        <th>Status</th>
+                        <th>Department</th>
+                        <th>Hired On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each employees}}
+                        <tr>
+                            <td>{{this.employeeNum}}</td>
+                            <td><a href="/employee/{{this.employeeNum}}">{{this.firstName}} {{this.lastName}}</a></td>
+                            <td><a href="mailto:{{this.email}}">{{this.email}}</a></td>
+                            <td>{{this.addressStreet}} {{this.addressCity}} {{this.addressState}} {{this.addressPostal}}</td>
+                            <td><a href="/employees?manager={{this.employeeManagerNum}}">{{this.employeeManagerNum}}</a></td>
+                            <td><a href="/employees?status={{this.status}}">{{this.status}}</a></td>
+                            <td><a href="/employees?department={{this.department}}">{{this.department}}</a></td>
+                            <td><a href="/employees/empNum">{{this.hireDate}}</a></td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{#unless employees}}
+        </div class ="col-md-12 text-center">
+            <strong>{{message}}</strong>
+        </div>
+    {{/unless}}
+</div>

@@ -96,10 +96,10 @@ app.get('/employees', (req,res)=>{
         //call getEmployeeByStatus
         dataService.getEmployeeByStatus(queryString.status).
             then(employees=>{
-                res.json(employees);
+                res.render('employees',{employees:employees});
             }).
             catch(err=>{
-                res.json({message:err});
+                res.render('employees',{message:err});
             });
     }
     //if there is department in query string
@@ -107,10 +107,10 @@ app.get('/employees', (req,res)=>{
         //call getEmployeeByDepartment
         dataService.getEmployeeByDepartment(queryString.department).
             then(employees=>{
-                res.json(employees);
+                res.render('employees',{employees:employees});
             }).
             catch(err=>{
-                res.json({message:err});
+                res.render('employees',{message:err});
             });
     }
     //if there is manager in query string
@@ -118,10 +118,10 @@ app.get('/employees', (req,res)=>{
         //call getEmployeeByManager
         dataService.getEmployeeByManager(queryString.manager).
             then(employees=>{
-                res.json(employees);
+                res.render('employees',{employees:employees});
             }).
             catch(err=>{
-                res.json({message:err});
+                res.render('employees',{message:err});
             });
     }
     //if there is nothing in query string
@@ -129,10 +129,10 @@ app.get('/employees', (req,res)=>{
         //call getAllEmployees
         dataService.getAllEmployees().
             then(employees=>{
-                res.json(employees);
+                res.render('employees',{employees:employees});
             }).
             catch(err=>{
-                res.json({message: err});
+                res.render('employees',{message:err});
             });
         }
 });
@@ -185,7 +185,7 @@ app.get('/images/add', (req,res)=>{
 //get /images route
 app.get('/images',(req,res)=>{
     fs.readdir("./public/images/uploaded", function(err, items) {
-        res.render('images',{data:items});
+        res.render('images',{images:items});
     });
 });
 
