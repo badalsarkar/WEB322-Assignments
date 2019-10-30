@@ -64,6 +64,7 @@ app.engine('.hbs', exphbs({
 app.set('view engine', '.hbs');
 
 //for fixing the active item
+//in the main layout
 app.use(function(req,res,next){
      let route = req.baseUrl + req.path;
      app.locals.activeRoute = (route == "/") ? "/" : route.replace(/\/$/, "");
@@ -175,11 +176,6 @@ app.get('/departments', (req,res)=>{
 
 
 
-
-
-
-
-
 //images/add route
 app.get('/images/add', (req,res)=>{
     res.render('addImage');
@@ -188,21 +184,8 @@ app.get('/images/add', (req,res)=>{
 
 //get /images route
 app.get('/images',(req,res)=>{
-  /*  dataService.getImageInfo().
-        then(allimages=>{
-            let imageObj={images:allimages};
-            console.log(imageObj);
-            let jsonobj=JSON.stringify(imageObj);
-            console.log(jsonobj);
-            res.json(jsonobj);
-        }).
-        catch(err=>{
-            res.send(err);
-            res.end();
-        });*/
     fs.readdir("./public/images/uploaded", function(err, items) {
-        res.json({images:items});
-         
+        res.render('images',{data:items});
     });
 });
 
