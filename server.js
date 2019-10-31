@@ -1,12 +1,12 @@
 /*********************************************************************************
-* WEB322 – Assignment 3
+* WEB322 – Assignment 4
 * I declare that this assignment is my own work in accordance with Seneca Academic Policy.
 * No part of this assignment has been copied manually or electronically from any other source
 * (including web sites) or distributed to other students.
 *
-* Name: Badal Sarkar     Student ID: 137226189      Date: October 11, 2019
+* Name: Badal Sarkar     Student ID: 137226189      Date: October 31, 2019
 *
-* Online (Heroku) URL:https://mysterious-dusk-06580.herokuapp.com/
+* Online (Heroku) URL:https://
 *
 ********************************************************************************/ 
 
@@ -152,10 +152,10 @@ app.get('/employees/add', (req,res)=>{
 app.get('/employee/:value',(req,res)=>{
     dataService.getEmployeeByNum(req.params.value).
         then(employees=>{
-            res.json(employees);
+            res.render('employee',{employee:employees[0]});
         }).
         catch(err=>{
-            res.json({message:err});
+            res.render('employee',{message:err});
         });
 });
 
@@ -202,6 +202,16 @@ app.post('/images/add', upload.single("imageFile"), (req, res)=>{
 app.post('/employees/add',(req,res)=>{
     dataService.addEmployee(req.body);
     res.redirect('/employees');
+});
+
+
+
+//post employee update
+app.post('/employee/update', (req, res)=>{
+    dataService.updateEmployee(req.body).
+        then(()=>{
+            res.redirect("/employees");
+        });
 });
 
 

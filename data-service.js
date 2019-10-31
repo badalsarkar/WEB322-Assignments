@@ -170,5 +170,32 @@ module.exports={
             employee.push(employeeData);
             resolve();
     });
-}
+},
+    //this method updates employee information
+    updateEmployee:function(employeeData){
+        return new Promise((resolve,reject)=>{
+            let index= employee.findIndex(employee=>{
+                return employee.employeeNum==employeeData.employeeNum;
+            });
+            if(index>=0){
+                employee[index].firstName=employeeData.firstName;
+                employee[index].lastName=employeeData.lastName;
+                employee[index].email=employeeData.email;
+                employee[index].SSN=employeeData.SSN;
+                employee[index].addressStreet=employeeData.addressStreet;
+                employee[index].addressCity=employeeData.addressCity;
+                employee[index].addressState=employeeData.addressState;
+                employee[index].addressPostal=employeeData.addressPostal;
+                employee[index].employeeManagerNum=employeeData.employeeManagerNum;
+                employee[index].status=employeeData.status;
+                employee[index].department=employeeData.department;
+                employee[index].department=employeeData.department;
+                employee[index].hireDate=employeeData.hireDate;
+                resolve();
+            }
+            else{
+                reject("Employee not found");
+            }
+        });
+    }
 };
