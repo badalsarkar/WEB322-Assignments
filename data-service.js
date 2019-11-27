@@ -51,14 +51,12 @@ let Department= sequelize.define('department',{
 Department.hasMany(Employee, {foreignKey:'department'});
 
 
-
 //exporting function
 module.exports={
     initialize: function (){
         return new Promise((resolve,reject)=>{
            sequelize.sync().
                 then(function(){
-                    console.log("connection success");
                     resolve("Database connection successfu");
                 }).
                 catch(function(){
@@ -73,7 +71,6 @@ module.exports={
                     resolve(employees);
                 }).
                 catch((err)=>{
-                    console.log(err);
                     reject("Error reading employee data");
                 });
         });
@@ -224,9 +221,10 @@ module.exports={
         return new Promise((resolve,reject)=>{
             //if any property has empty value, replace it with null
             for(const prop in employeeData){
-                if(employeeData.prop=="")
+                if(employeeData.prop=='')
                     employeeData.prop=null;
             }
+            console.log(employeeData);
             //if isManager is not set, set it as false
             employeeData.isManager=(employeeData.isManager)?true:false;
             //now update the record in database
@@ -234,7 +232,7 @@ module.exports={
                 then(()=>{
                     resolve("Employee data update successful");
                 }).
-                catch(()=>{
+                catch((err)=>{
                     reject("Unable to update employee data");
                 });
         });
@@ -301,7 +299,6 @@ module.exports={
     //this function deletes specified employee from database
     deleteEmployeeByNum:function(empNum)
     {
-        console.log(empNum);
         return new Promise((resolve,reject)=>{
             Employee.destroy({where:{employeeNum:empNum}}).
                 then((res)=>{

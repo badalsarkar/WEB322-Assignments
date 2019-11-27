@@ -1,5 +1,4 @@
 /*********************************************************************************
-* WEB322 – Assignment 5
 * I declare that this assignment is my own work in accordance with Seneca Academic Policy.
 * No part of this assignment has been copied manually or electronically from any other source
 * (including web sites) or distributed to other students.
@@ -13,12 +12,14 @@
 const express =require('express');
 const path=require('path');
 const dataService=require('./data-service.js');
+const dataServiceAuth=require('./data-service-auth.js');
 const port=process.env.PORT||8080;
 const multer=require('multer');
 const fs=require('fs');
 const bodyParser=require('body-parser');
 const exphbs=require('express-handlebars');
 const Sequelize=require('sequelize');
+const clientSessions=require('client-sessions');
 let app=express();
 
 
@@ -62,8 +63,39 @@ app.engine('.hbs', exphbs({
         }
     } //end of helpers
 }));
-
 app.set('view engine', '.hbs');
+
+
+//clientSession setup
+app.use(clientSessions({
+    cookieName:"session",
+    secret:"web322assignment6_thefinalassignment",
+    duration: 2*60*1000,         //session remain active for 2 minutes(in miliseconds)
+    activeDuration: 1000*60     //session extended by 1 minute with each request
+}));
+
+
+//attach session object as local variable to the response
+//this allows us to access these variables while rendering views
+//check (https://expressjs.com/en/api.html#res.locals)
+app.use((req,res,next)=>{
+    res.locals.session=req.session;
+    next();
+});
+
+//ensurelogin function
+//this function checks if an user is logged in or not
+function ensureLogin(req, res, next){
+    if(!req.session.user)
+    {
+        res.redirect("/login");
+    }
+    else
+    {
+        next();
+    }
+}
+
 
 //for fixing the active item
 //in the main layout
@@ -77,7 +109,6 @@ app.use(function(req,res,next){
 //routing
 //home route
 app.get('/',(req, res)=>{
-    //res.sendFile(path.join(__dirname, '/views/home.html'));
     res.render('home');
 });
 
@@ -90,7 +121,7 @@ app.get('/about', (req,res)=>{
 
 
 //employee route
-app.get('/employees', (req,res)=>{
+app.get('/employees',ensureLogin,(req,res)=>{
     //extract query sting
     let queryString=req.query;
     //if there is status in query string
@@ -170,7 +201,7 @@ app.get('/employees', (req,res)=>{
 
 
 //employee/add route
-app.get('/employees/add', (req,res)=>{
+app.get('/employees/add',ensureLogin,(req,res)=>{
     //get department data
     dataService.getDepartments().
         then(departments=>{
@@ -185,7 +216,7 @@ app.get('/employees/add', (req,res)=>{
 
 //employee:value route
 //this function handles get request with dynamic value 
-app.get('/employee/:employeeNum',(req,res)=>{
+app.get('/employee/:employeeNum',ensureLogin,(req,res)=>{
     //create an empty object
     let viewData={};
     dataService.getEmployeeByNum(req.params.employeeNum).
@@ -222,7 +253,7 @@ app.get('/employee/:employeeNum',(req,res)=>{
 });
 
 //delete employee route
-app.get('/employees/delete/:empNum', (req,res)=>{
+app.get('/employees/delete/:empNum',ensureLogin,(req,res)=>{
     dataService.deleteEmployeeByNum(req.params.empNum).
         then(()=>{
             res.redirect('/employees');
@@ -235,7 +266,7 @@ app.get('/employees/delete/:empNum', (req,res)=>{
 
 
 //departments route
-app.get('/departments', (req,res)=>{
+app.get('/departments',ensureLogin,(req,res)=>{
     dataService.getDepartments().
         then(departments=>{
             if(departments.length>0){
@@ -252,7 +283,7 @@ app.get('/departments', (req,res)=>{
 
 
 //get department:value
-app.get('/department/:departmentId',(req,res)=>{
+app.get('/department/:departmentId',ensureLogin,(req,res)=>{
     dataService.getDepartmentById(req.params.departmentId).
         then((department)=>{
             if(department){
@@ -270,7 +301,7 @@ app.get('/department/:departmentId',(req,res)=>{
 
 
 //delete department
-app.get('/departments/delete/:departmentId',(req, res)=>{
+app.get('/departments/delete/:departmentId',ensureLogin,(req, res)=>{
     dataService.deleteDepartmentById(req.params.departmentId).
         then(()=>{
             res.redirect('/departments');
@@ -283,20 +314,20 @@ app.get('/departments/delete/:departmentId',(req, res)=>{
 
 //department add route
 //provides functionality to add a department
-app.get('/departments/add',(req,res)=>{
+app.get('/departments/add',ensureLogin,(req,res)=>{
     res.render('addDepartment');
 });
 
 
 
 //images/add route
-app.get('/images/add', (req,res)=>{
+app.get('/images/add',ensureLogin, (req,res)=>{
     res.render('addImage');
 });
 
 
 //get /images route
-app.get('/images',(req,res)=>{
+app.get('/images',ensureLogin,(req,res)=>{
     fs.readdir("./public/images/uploaded", function(err, items) {
         res.render('images',{images:items});
     });
@@ -304,15 +335,44 @@ app.get('/images',(req,res)=>{
 
 
 
+//get login
+app.get('/login',(req,res)=>{
+    res.render('login');
+});
+
+
+
+//get register
+app.get('/register',(req,res)=>{
+    res.render('register');
+});
+
+
+
+
+//get logout
+app.get('/logout',(req,res)=>{
+    req.session.reset();
+    res.redirect('/');
+});
+
+
+
+//get userhistory
+app.get('/userHistory',ensureLogin,(req,res)=>{
+    res.render('userHistory');
+});
+
+
 
 //post request
-app.post('/images/add', upload.single("imageFile"), (req, res)=>{
+app.post('/images/add',ensureLogin, upload.single("imageFile"), (req, res)=>{
     res.redirect('/images');
 });
 
 
 //post employee
-app.post('/employees/add',(req,res)=>{
+app.post('/employees/add',ensureLogin,(req,res)=>{
     dataService.addEmployee(req.body).
         then(()=>{
             res.redirect('/employees');
@@ -325,7 +385,7 @@ app.post('/employees/add',(req,res)=>{
 
 //post request for department
 //add department
-app.post('/departments/add',(req,res)=>{
+app.post('/departments/add',ensureLogin,(req,res)=>{
     dataService.addDepartment(req.body).
         then(()=>{
             res.redirect('/departments');
@@ -338,7 +398,7 @@ app.post('/departments/add',(req,res)=>{
 
 //update department
 //post request
-app.post('/department/update', (req,res)=>{
+app.post('/department/update',ensureLogin, (req,res)=>{
     dataService.updateDepartment(req.body).
         then(()=>{
             res.redirect('/departments');
@@ -351,12 +411,54 @@ app.post('/department/update', (req,res)=>{
 
 
 //post employee update
-app.post('/employee/update', (req, res)=>{
+app.post('/employee/update',ensureLogin, (req, res)=>{
     dataService.updateEmployee(req.body).
         then(()=>{
             res.redirect("/employees");
         });
 });
+
+
+
+//post register
+app.post('/register',(req,res)=>{
+    dataServiceAuth.registerUser(req.body)
+    .then(()=>{
+        res.render('register',{successMessage:"User Created"});
+    })
+    .catch(err=>{
+        res.render('register',{errorMessage:err, userName:req.body.userName});
+    });
+});
+
+
+
+//post login
+app.post('/login',(req,res)=>{
+    req.body.userAgent=req.get('User-Agent');
+    dataServiceAuth.checkUser(req.body)
+    //if user is valid
+    .then((validuser)=>{
+        //add user information to the session object
+        req.session.user={
+            userName:validuser.userName,
+            email:validuser.email,
+            loginHistory:validuser.loginHistory
+        };
+        res.redirect('/employees');
+    })
+    .catch(err=>{
+        res.render('/login',{errorMessage:err, userName:req.body.userName});
+    });
+});
+
+
+
+
+//
+
+
+
 
 
 
@@ -368,13 +470,14 @@ app.use((req,res)=>{
 
 
 //starting the server
-dataService.initialize().
-    then((msg)=>{
-        app.listen(port,()=>{
-            console.log("Server is listening to port "+port);
-        });
-    }).
-    catch(msg=>{
-        console.log(msg);
+dataService.initialize()
+.then(dataServiceAuth.initialize)
+.then(()=>{
+    app.listen(port,()=>{
+        console.log("Server is listening to port "+port);
     });
+})
+.catch(err=>{
+    console.log(`Unable to start the server: ${err}`);
+});
 
