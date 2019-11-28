@@ -23,9 +23,6 @@ const clientSessions=require('client-sessions');
 let app=express();
 
 
-//parser the request body
-app.use(bodyParser.urlencoded({extended:true}));
-
 //defining static resource
 app.use(express.static('public'));
 
@@ -74,6 +71,10 @@ app.use(clientSessions({
     activeDuration: 1000*60     //session extended by 1 minute with each request
 }));
 
+//parser the request body
+app.use(bodyParser.urlencoded({extended:true}));
+
+
 
 //attach session object as local variable to the response
 //this allows us to access these variables while rendering views
@@ -82,6 +83,17 @@ app.use((req,res,next)=>{
     res.locals.session=req.session;
     next();
 });
+
+
+//for fixing the active item
+//in the main layout
+app.use(function(req,res,next){
+     let route = req.baseUrl + req.path;
+     app.locals.activeRoute = (route == "/") ? "/" : route.replace(/\/$/, "");
+     next();
+});
+
+
 
 //ensurelogin function
 //this function checks if an user is logged in or not
@@ -95,15 +107,6 @@ function ensureLogin(req, res, next){
         next();
     }
 }
-
-
-//for fixing the active item
-//in the main layout
-app.use(function(req,res,next){
-     let route = req.baseUrl + req.path;
-     app.locals.activeRoute = (route == "/") ? "/" : route.replace(/\/$/, "");
-     next();
-});
 
 
 //routing
@@ -436,19 +439,15 @@ app.post('/register',(req,res)=>{
 //post login
 app.post('/login',(req,res)=>{
     req.body.userAgent=req.get('User-Agent');
-    dataServiceAuth.checkUser(req.body)
-    //if user is valid
-    .then((validuser)=>{
-        //add user information to the session object
+    dataServiceAuth.checkUser(req.body).then(validuser=>{
         req.session.user={
             userName:validuser.userName,
             email:validuser.email,
             loginHistory:validuser.loginHistory
         };
         res.redirect('/employees');
-    })
-    .catch(err=>{
-        res.render('/login',{errorMessage:err, userName:req.body.userName});
+    }).catch(err=>{
+        res.render('login',{errorMessage:err, userName:req.body.userName});
     });
 });
 
@@ -458,7 +457,9 @@ app.post('/login',(req,res)=>{
 //
 
 
-
+app.get('/test',(req,res)=>{
+    res.send(req.session);
+});
 
 
 

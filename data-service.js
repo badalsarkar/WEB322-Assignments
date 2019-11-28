@@ -183,8 +183,8 @@ module.exports={
         return new Promise((resolve,reject)=>{
             //if any property has empty value, replace it with null
             for(const prop in employeeData){
-                if(employeeData.prop=="")
-                    employeeData.prop=null;
+                if(employeeData[prop]=="")
+                    employeeData[prop]=null;
             }
             //if isManager is not set, set it as false
             employeeData.isManager=(employeeData.isManager)?true:false;
@@ -245,8 +245,8 @@ module.exports={
         return new Promise((resolve,reject)=>{ 
             //replace all empty value with null
             for(const prop in departmentData){
-                if(departmentData.prop=="")
-                    departmentData.prop=null;
+                if(departmentData[prop]=="")
+                    departmentData[prop]=null;
             }
             //add the record to the database
             Department.create({
