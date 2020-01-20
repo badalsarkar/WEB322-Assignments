@@ -1,8 +1,11 @@
 let Sequelize=require('sequelize');
+const env= require('dotenv');
+env.config();
+
 
 //database setup
-let sequelize = new Sequelize('ddeqodcr0rf7j8', 'qwsecpuqzxdjki', 'cf7550f4e7892a361de4554f4b1730ce67219385d59ec4a2c0ac9199c62eda98',{
-    host:'ec2-174-129-252-252.compute-1.amazonaws.com',
+let sequelize = new Sequelize(process.env.SequelizeDB, process.env.SequelizeUser, process.env.Sequelize.Pass,{
+    host:process.env.SequelizeHost,
     dialect:'postgres',
     port:5432,
     dialectOptions:{ssl:true}

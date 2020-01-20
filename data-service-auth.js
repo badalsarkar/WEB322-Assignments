@@ -1,10 +1,11 @@
 var mongoose=require("mongoose");
 const bcrypt=require('bcryptjs');
 var Schema=mongoose.Schema;
+const env=require('dotenv');
+env.config();
 
 /* database setup */
-const password="Yv16gFY2tpq5";
-const connectionString=`mongodb+srv://badalsarkar:${password}@cluster0-dthvm.mongodb.net/WEB322?retryWrites=true&w=majority`
+const connectionString= process.env.DBURI;
 
 //schema for user
 var userSchema= new Schema({
